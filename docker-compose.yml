@@ -1,0 +1,87 @@
+
+services:
+  # Servidor local de LLM (Ollama)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_NUM_PARALLEL=4
+      - TZ=${TZ:-Europe/Madrid}
+    # Configuración de GPU para el DGX SPARK
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    restart: unless-stopped
+
+  # Contenedor auxiliar que descarga automáticamente el modelo GLM 5.2 una vez levantado Ollama
+  ollama-pull-model:
+    image: ollama/ollama:latest
+    container_name: ollama-pull-model
+    entrypoint: /bin/sh
+    command: -c "ollama pull ${OLLAMA_MODEL_TAG:-glm-5.2}"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: "no"
+
+  # Servidor OpenCode
+  opencode:
+    image: ghcr.io/anomalyco/opencode:latest
+    container_name: opencode
+    command: opencode serve --hostname 0.0.0.0 --port 4096
+    ports:
+      - "${OPENCODE_PORT:-4096}:4096"
+    volumes:
+      - ./config/opencode.json:/config/opencode.json
+      - ./workspace:/workspace
+      - ./data/share:/root/.local/share/opencode
+      - ./data/state:/root/.local/state/opencode
+    environment:
+      - OPENCODE_CONFIG=/config/opencode.json
+      - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-opencode_secure_pass}
+      - TZ=${TZ:-Europe/Madrid}
+    working_dir: /workspace
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Cliente interactivo OpenCode para Terminal (CLI/TUI)
+  opencode-cli:
+    image: ghcr.io/anomalyco/opencode:latest
+    container_name: opencode-cli
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./config/opencode.json:/config/opencode.json
+      - ./workspace:/workspace
+      - ./data/share:/root/.local/share/opencode
+      - ./data/state:/root/.local/state/opencode
+    environment:
+      - OPENCODE_CONFIG=/config/opencode.json
+      - TZ=${TZ:-Europe/Madrid}
+    working_dir: /workspace
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+
+volumes:
+  ollama_data:
+    name: ollama_data
