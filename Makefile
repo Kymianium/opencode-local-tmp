@@ -64,4 +64,4 @@ pull-model:
 clean:
 	@echo "ADVERTENCIA: Se borrarán los contenedores, volúmenes e historial de datos."
 	docker compose down -v
-	docker run --rm -v $(shell pwd):/mnt ghcr.io/anomalyco/opencode:latest rm -rf /mnt/data
+	docker run --rm --entrypoint "" -v $(shell pwd):/mnt ghcr.io/anomalyco/opencode:latest rm -rf /mnt/data
