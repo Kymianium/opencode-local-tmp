@@ -32,7 +32,7 @@ services:
     image: ollama/ollama:latest
     container_name: ollama-pull-model
     entrypoint: /bin/sh
-    command: -c "ollama pull ${OLLAMA_MODEL_TAG:-glm-5.2}"
+    command: -c "ollama pull $${OLLAMA_MODEL_TAG:-qwen3.6:35b-a3b-coding-nvfp4}"
     environment:
       - OLLAMA_HOST=http://ollama:11434
     depends_on:
@@ -44,7 +44,7 @@ services:
   opencode:
     image: ghcr.io/anomalyco/opencode:latest
     container_name: opencode
-    command: opencode serve --hostname 0.0.0.0 --port 4096
+    command: serve --hostname 0.0.0.0 --port 4096
     ports:
       - "${OPENCODE_PORT:-4096}:4096"
     volumes:
