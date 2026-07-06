@@ -32,7 +32,7 @@ services:
     image: ollama/ollama:latest
     container_name: ollama-pull-model
     entrypoint: /bin/sh
-    command: -c "ollama pull $${OLLAMA_MODEL_TAG:-qwen3.6:35b-a3b-coding-nvfp4}"
+    command: -c "ollama pull $${OLLAMA_MODEL_TAG:-qwen3.6:35b-a3b-q4_K_M}"
     environment:
       - OLLAMA_HOST=http://ollama:11434
     depends_on:

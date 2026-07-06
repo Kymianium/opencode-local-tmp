@@ -9,14 +9,14 @@
         "apiKey": "ollama"
       },
       "models": {
-        "qwen3.6:35b-a3b-coding-nvfp4": {
-          "name": "Qwen 3.6 35B MoE NVFP4"
+        "qwen3.6:35b-a3b-q4_K_M": {
+          "name": "Qwen 3.6 35B MoE Q4"
         }
       },
       "tools": true
     }
   },
-  "model": "ollama/qwen3.6:35b-a3b-coding-nvfp4",
+  "model": "ollama/qwen3.6:35b-a3b-q4_K_M",
   "permission": {
     "edit": "allow",
     "bash": "allow",
